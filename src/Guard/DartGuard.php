@@ -2,6 +2,7 @@
 
 namespace Dart\ACL\Guard;
 
+use Dart\ACL\Exceptions\InvalidPayloadException;
 use Dart\ACL\Models\DartUser;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Guard;
@@ -15,6 +16,7 @@ class DartGuard implements Guard
     private $user;
     private $provider;
     private $decodedToken;
+    private $requestToken;
     /**
      * @var Request
      */
@@ -28,6 +30,8 @@ class DartGuard implements Guard
         $this->provider = $provider;
         $this->decodedToken = null;
         $this->request = $request;
+        $this->requestToken = substr($this->request->header('Authorization'), 7);
+
 
         $this->authenticate();
 
@@ -43,9 +47,9 @@ class DartGuard implements Guard
     {
 //        dump('authenticate');
         try {
-            $this->decodedToken = JWT::decode($this->request->header('token'), env('JWT_SECRET'), ['HS256']);
+            $this->decodedToken = JWT::decode($this->requestToken, env('DART_JWT_SECRET'), ['HS256']);
         } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+            throw new InvalidPayloadException($e->getMessage());
         }
 
         if ($this->decodedToken) {

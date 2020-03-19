@@ -18,9 +18,5 @@ class DartACLServiceProvider extends ServiceProvider {
         Auth::extend('dart-jwt', function ($app, $name, array $config) {
             return new DartGuard(Auth::createUserProvider($config['provider']), $app->request);
         });
-
-        $this->app->routeMiddleware([
-            'auth' => App\Http\Middleware\Authenticate::class,
-        ]);
     }
 }
